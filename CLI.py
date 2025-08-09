@@ -1,0 +1,3 @@
+import inventory_console_app
+
+inventory_console_app.add_inventory()bjdkkc
