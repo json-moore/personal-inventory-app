@@ -26,7 +26,7 @@ def main():
     # start program with table creation
     cursor.execute("""
                 CREATE TABLE IF NOT EXISTS inventory (
-                id SERIAL PRIMARY KEY,
+                row_id SERIAL PRIMARY KEY,
                 category_id INT NOT NULL,
                 item TEXT NOT NULL,
                 quantity INT NOT NULL,
@@ -93,7 +93,7 @@ def read_inventory():
                    """)
     allRows = cursor.fetchall()
     for cat_name, inv_item, inv_quantity in allRows:
-        print(f'{cat_name}: {inv_item} | Qty: {inv_quantity}')
+        print(f'{cat_name}: [{inv_item}, Qty: {inv_quantity}]')
 
     cursor.execute("""
                    SELECT * FROM categories;
@@ -104,24 +104,66 @@ def read_inventory():
         print(f'{id}: {column}')
 
 
-
 def edit_inventory():
-    # edit inventory based on ID
+    # edit inventory based on name
+    while True:
+        editorSelection = input('Category [c]\n'
+                                'Item Name [i]\n'
+                                'Quantity [q]\n'
+                                'Edit Full Row [r]\n\n'
+                                'What would you like to edit? ').lower()
+        
+        if editorSelection == 'c': #edit category
+            selectRowID = int(input('Please enter the row ID of the item you want to edit: '))
+            newCategory = int(input('Please enter the new category id: '))
+            cursor.execute("""
+                        UPDATE inventory
+                        SET category_id = %s
+                        WHERE row_id = %s;
+                        """, (newCategory, selectRowID))
+            conn.commit()
+            print(f'Category updated successfully.')
+            break
+        elif editorSelection == 'i': #edit item
+            selectRowID = int(input('Please enter the row ID of the item you want to edit: '))
+            newItem = input('Please enter the new item name: ').lower().strip()
+            cursor.execute("""
+                        UPDATE inventory
+                        SET item = %s
+                        WHERE row_id = %s;
+                        """, (newItem, selectRowID))
+            conn.commit()
+            print(f'Item updated successfully.')
+            break
+        elif editorSelection == 'q': #edit quantity
+            selectRowID = int(input('Please enter the row ID of the item you want to edit: '))
+            newQuantity = int(input('Please enter the new quantity: '))
+            cursor.execute("""
+                        UPDATE inventory
+                        SET quantity = %s
+                        WHERE row_id = %s;
+                        """, (newQuantity, selectRowID))
+            conn.commit()
+            print(f'Quantity updated successfully.')
+            break
+        elif editorSelection == 'r': #edit full row
+            selectRowID = int(input('Please enter the row ID of the item you want to edit: '))
+            newRow = input('Please enter the new row as formatted below:\n\n'
+                        '[category id], [item], [quantity]: ').lower().strip()
+            category_id, item, quantity = newRow.split(',')
+            quantity = int(quantity.strip())
+            cursor.execute("""
+                        UPDATE inventory
+                        SET category_id = %s, item = %s, quantity = %s
+                        WHERE row_id = %s;
+                        """, (category_id.strip(), item.strip(), quantity, selectRowID))
+            conn.commit()
+            print(f'Row updated successfully.')
+            break
+        else:
+            print('Invalid selection. Please try again.\n')
+            continue
 
-
-    """
-    ***** SQL code for edit func ******
-
-    update inventory
-set
-	category = 'whatintheworld'
-where id = 5;
-
-select * from inventory order by id
-    """
-
-    # edit inventory based on ...
-    return
 
 def remove_inventory():
     return
@@ -129,6 +171,7 @@ def remove_inventory():
 main()
 add_inventory()
 read_inventory()
+edit_inventory()
 
 cursor.close() # close the cursor
 conn.close() # close the connection once the program is done
