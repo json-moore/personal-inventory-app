@@ -1,3 +1,3 @@
-import inventory_console_app
+import personal_inventory_app
 
-inventory_console_app.add_inventory()
+personal_inventory_app.add_inventory()
