@@ -160,18 +160,49 @@ def edit_inventory():
             conn.commit()
             print(f'Row updated successfully.')
             break
+        elif editorSelection == 'x':
+            break
         else:
             print('Invalid selection. Please try again.\n')
             continue
 
 
 def remove_inventory():
-    return
+    # delete individual row
+    deleteType = input('What would you like to remove?\n'
+                       'Remove inventory row (Enter r)'
+                       'Remove entire inventory table (Enter t)')
+    if deleteType == 'r':
+        while True:
+            selectRowID = input('Please enter the ID of the row you want to delete: '
+                                'Enter (x) to stop.')
+            if selectRowID.strip() == 'x':
+                break
+            else:
+                cursor.execute("""
+                            DELETE FROM inventory
+                            WHERE row_id = %s;
+                            """, (selectRowID))
+                conn.commit()
+                print(f'Row deleted successfully.')
+                continue
+    elif deleteType == 't':
+        areYouSure = input('Are you sure you want to DELETE the inventory table?\n'
+                           'This action CANNOT be undone.\n'
+                           '(Y/N): ').lower().strip()
+        if areYouSure == 'y':
+            cursor.execute("""
+                           DROP TABLE inventory;
+                           """)
+        elif areYouSure == 'n':
+            print('Delete action cancelled')
+        
 
 main()
 add_inventory()
 read_inventory()
 edit_inventory()
+remove_inventory()
 
 cursor.close() # close the cursor
 conn.close() # close the connection once the program is done
